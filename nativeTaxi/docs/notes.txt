@@ -1,0 +1,36 @@
+# Install react native maps
+npm install --save git+https://git@github.com/react-native-community/react-native-maps.git
+yarn add react-native-maps -E
+
+
+# Get an api key from 
+https://developers.google.com/maps/documentation/android-sdk/get-api-key
+
+https://cloud.google.com/console/google/maps-apis/overview
+
+Select Project
+    New Project
+    add a project name
+    CREATE
+
+Select Project
+    Select the new project
+
+Click the menu button  and select APIs & Services > Credentials.
+
+On the Credentials page, click Create credentials > API key.
+
+Click Close. 
+The new API key is listed on the Credentials page under API keys. 
+(Remember to restrict the API key before using it in production.)
+
+# Add internet permisions and api key to AndroidManifest.xml
+
+<uses-permission android:name="android.permission.INTERNET" />
+
+<application>
+   <!-- You will only need to add this meta-data tag, but make sure it's a child of application -->
+   <meta-data
+     android:name="com.google.android.geo.API_KEY"
+     android:value="Your Google maps API Key Here"/>
+</application>
