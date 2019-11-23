@@ -34,3 +34,6 @@ The new API key is listed on the Credentials page under API keys.
      android:name="com.google.android.geo.API_KEY"
      android:value="Your Google maps API Key Here"/>
 </application>
+
+    <uses-permission android:name="android.permission.ACCESS_COURSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
