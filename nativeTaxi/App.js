@@ -81,13 +81,8 @@ class App extends Component {
           latitudeDelta: 0.0015,
           longitudeDelta: 0.0121,
         }}
+        showsUserLocation={true}
       />
-      <Marker
-        coordinate={this.state}
-        pinColor='red'
-        
-      >
-      </Marker>
     </View>
     );
   }
