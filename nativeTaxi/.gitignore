@@ -60,3 +60,4 @@ buck-out/
 
 # Do not pull api key at moment
 *AndroidManifest.xml
+*google-api-key.js

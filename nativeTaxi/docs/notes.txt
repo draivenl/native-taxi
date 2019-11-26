@@ -37,3 +37,14 @@ The new API key is listed on the Credentials page under API keys.
 
     <uses-permission android:name="android.permission.ACCESS_COURSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+
+    yarn add react-native-geolocation-service
+
+
+
+    https://cloud.google.com/maps-platform/#get-started
+    check Maps  Routes and Places
+
+Install lodash
+    npm i -g npm
