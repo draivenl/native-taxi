@@ -27,8 +27,8 @@ async function callApi(endpoint, options = {}) {
 
 const api = {
   places: {
-    predictions(apiKey, input, latitude, longitude) {
-      jsonResult = callApi(`json?key=${apiKey}&input=${input}&location=${latitude},${longitude}&radius=2000`);
+    predictions(apiKey, destination, longitude, latitude) {
+      jsonResult = callApi(`json?key=${apiKey}&input={${destination}}&location=${latitude},${longitude}&radius=2000&language=es`);
       console.log("jsonResult:::");
       console.log(jsonResult);
       
