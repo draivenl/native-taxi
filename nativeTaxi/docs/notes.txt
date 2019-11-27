@@ -48,3 +48,8 @@ The new API key is listed on the Credentials page under API keys.
 
 Install lodash
     npm i -g npm
+
+Routes
+    https://cloud.google.com/maps-platform/routes/
+
+    yarn add @mapbox/polyline

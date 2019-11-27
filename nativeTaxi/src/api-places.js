@@ -1,4 +1,4 @@
-const BASE_URL = 'https://maps.googleapis.com/maps/api/place/autocomplete/';
+const BASE_URL = 'https://maps.googleapis.com/maps/api/';
 
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 const randomNumber = (min = 0, max = 1) =>
@@ -28,7 +28,7 @@ async function callApi(endpoint, options = {}) {
 const api = {
   places: {
     predictions(apiKey, destination, longitude, latitude) {
-      jsonResult = callApi(`json?key=${apiKey}&input={${destination}}&location=${latitude},${longitude}&radius=2000&language=es`);
+      jsonResult = callApi(`place/autocomplete/json?key=${apiKey}&input={${destination}}&location=${latitude},${longitude}&radius=2000&language=es`);
       console.log("jsonResult:::");
       console.log(jsonResult);
       
@@ -44,6 +44,24 @@ const api = {
 
     }
   },
+  directions: {
+    routes(apiKey, destinationPlaceId, longitude, latitude) {
+      jsonResult = callApi(`directions/json?origin=${latitude},${longitude}&destination=place_id:${destinationPlaceId}&key=${apiKey}`);
+      console.log("jsonResult:::");
+      console.log(jsonResult);
+      
+      return jsonResult
+      // Para simular cuando no retorna datos
+      //return []
+
+      // Para simular que ocurre un error
+      // throw new Error("Not found")
+
+      // throw new Error('500: Server Error')
+
+    }
+  },
+
 };
 
 export default api;

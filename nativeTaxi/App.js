@@ -6,16 +6,18 @@ import {
   Text,
   TextInput,
   StatusBar,
+  Keyboard,
   View,
   PermissionsAndroid,
   TouchableHighlight,
   FlatList
 } from 'react-native';
-import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
+import MapView, {PROVIDER_GOOGLE, Marker, Polyline} from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
 import _ from 'lodash'
+import PolyLine from "@mapbox/polyline";
 
-import API from './src/api-places'
+import apiPlaces from './src/api-places'
 import apiKey from './src/google-api-key'
 
 
@@ -27,7 +29,8 @@ class App extends Component {
       longitude: 0,
       error: null,
       destination: '',
-      locationPredictions: []
+      locationPredictions: [],
+      pointCoords: []
     }
     // this.onChangeDestinationDebounced = _.debounce(
     //   this.onChangeDestination,
@@ -83,7 +86,7 @@ class App extends Component {
 
   async onChangeDestination(destination) {
     try {
-      const data = await API.places.predictions(apiKey, destination,this.state.longitude, this.state.latitude)
+      const data = await apiPlaces.places.predictions(apiKey, destination,this.state.longitude, this.state.latitude)
       this.setState({
         locationPredictions: data.predictions
       })
@@ -93,6 +96,25 @@ class App extends Component {
 
 
     
+  }
+
+  async getRouteDirections(destinationPlaceId, destinationName) {
+    try {
+      const response = await apiPlaces.directions.routes(apiKey, destinationPlaceId, this.state.longitude, this.state.latitude)
+      const points = PolyLine.decode(response.routes[0].overview_polyline.points);
+      const pointCoords = points.map(point => {
+        return { latitude: point[0], longitude: point[1] };
+      });
+      this.setState({
+        pointCoords,
+        locationPredictions: [],
+        destination: destinationName
+      });
+      Keyboard.dismiss();
+      this.map.fitToCoordinates(pointCoords);
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   handleChangeText = destination =>{
@@ -109,14 +131,18 @@ class App extends Component {
   renderEmpty = () => {
     return <Text style={styles.locationSuggestion}>No locations found</Text>
   }
-  renderItem = item => {
+  renderItem = prediction => {
     return (
       <TouchableHighlight
-        key={item.id}
-        onPress={() => this.pressedPrediction(item)}
+        key={prediction.id}
+        onPress={() =>
+          this.getRouteDirections(
+            prediction.place_id,
+            prediction.structured_formatting.main_text
+          )}
       >
         <Text style={styles.locationSuggestion}>
-          {item.description}
+          {prediction.structured_formatting.main_text}
         </Text>
       </TouchableHighlight>
     )
@@ -125,10 +151,21 @@ class App extends Component {
   handleSubmitEditing(){
     this.onChangeDestination(this.state.destination)
   }
+  handleTouchEnd(){
+    if (this.state.locationPredictions.length !== 0) {
+      this.setState({
+        locationPredictions: []
+      })
+    }
+
+  }
   render(){
     return (
       <View style={styles.container}>
         <MapView
+          ref={map => {
+            this.map = map;
+          }}
           provider={PROVIDER_GOOGLE} // remove if not using Google Maps
           style={styles.map}
           region={{
@@ -138,7 +175,14 @@ class App extends Component {
             longitudeDelta: 0.0121,
           }}
           showsUserLocation={true}
-        />
+          onTouchEnd={()=>this.handleTouchEnd()}
+        >
+          <Polyline
+            coordinates={this.state.pointCoords}
+            strokeWidth={4}
+            strokeColor="red"
+          />
+        </MapView>
 
         <TextInput
           onChangeText={this.handleChangeText}
@@ -147,24 +191,20 @@ class App extends Component {
           onSubmitEditing={()=>this.onChangeDestination(this.state.destination)}
 
         />
-        <FlatList 
-            ListEmptyComponent={()=>this.renderEmpty()}
-            data={this.state.locationPredictions} 
-            renderItem={({item})=>this.renderItem(item)}
-        />
+        <View>
+          <FlatList 
+              data={this.state.locationPredictions} 
+              renderItem={({item})=>this.renderItem(item)}
+          />
+        </View>
+        
       </View>
     );
   }
 };
 
 const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    
-  },
-  map: {
-    ...StyleSheet.absoluteFillObject,
-  },
+
   destination: {
     borderWidth: 0.5,
     borderColor: "grey",
@@ -177,9 +217,18 @@ const styles = StyleSheet.create({
   },
   locationSuggestion: {
     backgroundColor: "white",
+    borderColor: "grey",
     padding: 5,
-    fontSize: 18,
-    borderWidth: 0.5
+    borderWidth: 0.5,
+    marginLeft: 5,
+    marginRight: 5,
+  },
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    
+  },
+  map: {
+    ...StyleSheet.absoluteFillObject,
   },
  });
 
