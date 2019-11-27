@@ -159,6 +159,11 @@ class App extends Component {
     }
 
   }
+
+  getMarker(){
+    return <Marker coordinate={this.state.pointCoords[this.state.pointCoords.length - 1]}/>
+  }
+
   render(){
     return (
       <View style={styles.container}>
@@ -182,6 +187,7 @@ class App extends Component {
             strokeWidth={4}
             strokeColor="red"
           />
+          {this.state.pointCoords.length > 1 && this.getMarker()}
         </MapView>
 
         <TextInput
