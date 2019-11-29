@@ -16,6 +16,7 @@ import MapView, {PROVIDER_GOOGLE, Marker, Polyline} from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
 import _ from 'lodash'
 import PolyLine from "@mapbox/polyline";
+import Icon from "react-native-vector-icons/FontAwesome";
 
 import apiPlaces from './src/api-places'
 import apiKey from './src/google-api-key'
@@ -159,14 +160,23 @@ class App extends Component {
     }
 
   }
-
+  
+  iconFlag = <Icon name="flag" color="red" size={20}/>
   getMarker(){
-    return <Marker coordinate={this.state.pointCoords[this.state.pointCoords.length - 1]}/>
+    return <Marker 
+            coordinate={this.state.pointCoords[this.state.pointCoords.length - 1]}
+            icon={this.iconFlag}
+            />
   }
-
   render(){
     return (
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
+        <StatusBar 
+          hidden={false} 
+          translucent={true} 
+          backgroundColor='#FFFFFF00' 
+          barStyle='dark-content' 
+        />
         <MapView
           ref={map => {
             this.map = map;
@@ -189,7 +199,6 @@ class App extends Component {
           />
           {this.state.pointCoords.length > 1 && this.getMarker()}
         </MapView>
-
         <TextInput
           onChangeText={this.handleChangeText}
           style={styles.destination}
@@ -203,8 +212,7 @@ class App extends Component {
               renderItem={({item})=>this.renderItem(item)}
           />
         </View>
-        
-      </View>
+      </SafeAreaView>
     );
   }
 };
@@ -215,7 +223,7 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "grey",
     height: 40,
-    marginTop: 10,
+    marginTop: 50,
     marginLeft: 5,
     marginRight: 5,
     padding: 5,
@@ -231,7 +239,6 @@ const styles = StyleSheet.create({
   },
   container: {
     ...StyleSheet.absoluteFillObject,
-    
   },
   map: {
     ...StyleSheet.absoluteFillObject,
