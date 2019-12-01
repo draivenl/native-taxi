@@ -17,6 +17,7 @@ import Geolocation from 'react-native-geolocation-service';
 import _ from 'lodash'
 import PolyLine from "@mapbox/polyline";
 import Icon from "react-native-vector-icons/FontAwesome";
+import socketIO from "socket.io-client";
 
 import apiPlaces from '../api-places'
 import apiKey from '../google-api-key'
@@ -109,7 +110,8 @@ class Passenger extends Component {
       this.setState({
         pointCoords,
         locationPredictions: [],
-        destination: destinationName
+        destination: destinationName,
+        routeResponse: response
       });
       Keyboard.dismiss();
       this.map.fitToCoordinates(pointCoords);
@@ -168,9 +170,21 @@ class Passenger extends Component {
             icon={this.iconFlag}
             />
   }
+  async requestDriver(){
+    const socket = socketIO.connect('http://192.168.0.3:3000')
+    socket.on('connect', () => {
+      console.log('Client connected ;)');
+
+      socket.emit('taxiRequest', this.state.routeResponse)
+      
+    })
+  }
   showFindDriverButton(){
-    return <TouchableOpacity style={styles.findButton}>
-            <Text style={styles.findButtonText}>Find Driver</Text>
+    return <TouchableOpacity 
+              style={styles.findButton}
+              onPress={() => this.requestDriver()}
+            >
+              <Text style={styles.findButtonText}>Find Driver</Text>
           </TouchableOpacity>
   }
   render(){

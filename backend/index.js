@@ -6,9 +6,8 @@ const PORT = 3000
 
 io.on("connection", socket => {
     console.log("a user connected :D")
-    socket.on("message", msg => {
-        console.log(msg);
-        io.emit('message', msg)
+    socket.on("taxiRequest", routeResponse => {
+        console.log(routeResponse);
     })
 })
 

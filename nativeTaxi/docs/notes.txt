@@ -53,3 +53,6 @@ Routes
     https://cloud.google.com/maps-platform/routes/
 
     yarn add @mapbox/polyline
+
+Install Socket IO
+    yarn add socket.io-client
