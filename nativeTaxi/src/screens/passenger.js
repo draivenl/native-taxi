@@ -114,7 +114,9 @@ class Passenger extends Component {
         routeResponse: response
       });
       Keyboard.dismiss();
-      this.map.fitToCoordinates(pointCoords);
+      this.map.fitToCoordinates(pointCoords, {
+        edgePadding: { top: 20, bottom: 20, left: 20, right: 20 }
+      });
     } catch (error) {
       console.error(error);
     }
@@ -200,7 +202,7 @@ class Passenger extends Component {
           ref={map => {
             this.map = map;
           }}
-          provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+          //provider={PROVIDER_GOOGLE} // remove if not using Google Maps
           style={styles.map}
           region={{
             latitude: this.state.latitude,

@@ -8,14 +8,16 @@ import {
   Keyboard,
   View,
   PermissionsAndroid,
-  TouchableHighlight,
-  FlatList
+  TouchableOpacity,
+  ActivityIndicator
 } from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker, Polyline} from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
 import _ from 'lodash'
 import PolyLine from "@mapbox/polyline";
 import Icon from "react-native-vector-icons/FontAwesome";
+import socketIO from "socket.io-client";
+
 
 import apiPlaces from '../api-places'
 import apiKey from '../google-api-key'
@@ -28,14 +30,12 @@ class Driver extends Component {
       latitude: 0,
       longitude: 0,
       error: null,
-      destination: '',
-      locationPredictions: [],
-      pointCoords: []
+      pointCoords: [],
+      lookingForPassengers: false,
+      passengerFound: false,
+      routeResponse: [],
+      buttonText: "Find Passenger"
     }
-    // this.onChangeDestinationDebounced = _.debounce(
-    //   this.onChangeDestination,
-    //   5000
-    // );
   }
 
 
@@ -73,6 +73,10 @@ class Driver extends Component {
               longitude: position.coords.longitude,
               latitude: position.coords.latitude
             })
+            // this.setState({
+            //   longitude: '-75.6034606',
+            //   latitude: '6.2707108'
+            // })
         },
         (error) => {
             // See error code charts below.
@@ -84,34 +88,28 @@ class Driver extends Component {
     //navigator.geolocation.getCurrentPosition()
   }
 
-  async onChangeDestination(destination) {
-    try {
-      const data = await apiPlaces.places.predictions(apiKey, destination,this.state.longitude, this.state.latitude)
-      this.setState({
-        locationPredictions: data.predictions
-      })
-    } catch (error) {
-      console.log(`Error: ${error.message}`);
-    }
 
-
-    
-  }
-
-  async getRouteDirections(destinationPlaceId, destinationName) {
+  async getRouteDirections(destinationPlaceId) {
     try {
       const response = await apiPlaces.directions.routes(apiKey, destinationPlaceId, this.state.longitude, this.state.latitude)
-      const points = PolyLine.decode(response.routes[0].overview_polyline.points);
-      const pointCoords = points.map(point => {
-        return { latitude: point[0], longitude: point[1] };
-      });
-      this.setState({
-        pointCoords,
-        locationPredictions: [],
-        destination: destinationName
-      });
-      Keyboard.dismiss();
-      this.map.fitToCoordinates(pointCoords);
+      
+      if (response.status === "OK") {
+        const points = PolyLine.decode(response.routes[0].overview_polyline.points);
+        const pointCoords = points.map(point => {
+          return { latitude: point[0], longitude: point[1] };
+        });
+        this.setState({
+          pointCoords,
+          routeResponse: response,
+        });
+        
+        
+        Keyboard.dismiss();
+        this.map.fitToCoordinates(pointCoords, {
+          edgePadding: { top: 20, bottom: 20, left: 20, right: 20 }
+        });
+      }
+
     } catch (error) {
       console.error(error);
     }
@@ -124,39 +122,12 @@ class Driver extends Component {
     //this.onChangeDestinationDebounced(destination);
   }
 
-  pressedPrediction(prediction){
-    console.log(prediction);
-    
-  }
-  renderEmpty = () => {
-    return <Text style={styles.locationSuggestion}>No locations found</Text>
-  }
-  renderItem = prediction => {
-    return (
-      <TouchableHighlight
-        key={prediction.id}
-        onPress={() =>
-          this.getRouteDirections(
-            prediction.place_id,
-            prediction.structured_formatting.main_text
-          )}
-      >
-        <Text style={styles.locationSuggestion}>
-          {prediction.structured_formatting.main_text}
-        </Text>
-      </TouchableHighlight>
-    )
-    
-  }
+
   handleSubmitEditing(){
     this.onChangeDestination(this.state.destination)
   }
   handleTouchEnd(){
-    if (this.state.locationPredictions.length !== 0) {
-      this.setState({
-        locationPredictions: []
-      })
-    }
+
 
   }
   
@@ -165,6 +136,35 @@ class Driver extends Component {
     return <Marker 
             coordinate={this.state.pointCoords[this.state.pointCoords.length - 1]}
             icon={this.iconFlag}
+            />
+  }
+
+  async requestPassenger(){
+    this.setState({
+      lookingForPassengers: true
+    })
+    const socket = socketIO.connect('http://192.168.0.3:3000')
+
+    socket.on('connect', ()=>{
+      socket.emit('lookingForPassengers')
+    })
+
+    socket.on('taxiRequest', routeResponse => {
+      console.log(routeResponse);
+      this.getRouteDirections(routeResponse.geocoded_waypoints[0].place_id);
+      this.setState({
+        lookingForPassengers: false,
+        passengerFound: true,
+        routeResponse,
+        buttonText: "Passenger Found"
+      });
+      
+    })
+  }
+  showActivityIndicator(){
+    return <ActivityIndicator
+              animating={this.state.lookingForPassengers}
+              size='large'
             />
   }
   render(){
@@ -180,7 +180,7 @@ class Driver extends Component {
           ref={map => {
             this.map = map;
           }}
-          provider={PROVIDER_GOOGLE} // remove if not using Google Maps
+          //provider={PROVIDER_GOOGLE} // remove if not using Google Maps
           style={styles.map}
           region={{
             latitude: this.state.latitude,
@@ -198,19 +198,15 @@ class Driver extends Component {
           />
           {this.state.pointCoords.length > 1 && this.getMarker()}
         </MapView>
-        <TextInput
-          onChangeText={this.handleChangeText}
-          style={styles.destination}
-          placeholder= 'Enter destination...'
-          onSubmitEditing={()=>this.onChangeDestination(this.state.destination)}
-
-        />
-        <View>
-          <FlatList 
-              data={this.state.locationPredictions} 
-              renderItem={({item})=>this.renderItem(item)}
-          />
-        </View>
+        <TouchableOpacity 
+              style={styles.findButton}
+              onPress={() => this.requestPassenger()}
+            >
+              <View>
+        <Text style={styles.findButtonText}>{this.state.buttonText}</Text>
+                {this.state.lookingForPassengers && this.showActivityIndicator()}
+              </View>
+          </TouchableOpacity>
       </SafeAreaView>
     );
   }
@@ -242,6 +238,20 @@ const styles = StyleSheet.create({
   map: {
     ...StyleSheet.absoluteFillObject,
   },
+  findButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    backgroundColor: 'black',
+    marginTop: 'auto',
+    margin: 20,
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    alignSelf: 'center'
+  },
+  findButtonText: {
+    color: 'white'
+  }
  });
 
 export default Driver;
