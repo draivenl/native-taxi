@@ -10,7 +10,8 @@ import {
   PermissionsAndroid,
   TouchableHighlight,
   FlatList,
-  TouchableOpacity
+  TouchableOpacity,
+  ActivityIndicator
 } from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker, Polyline} from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
@@ -32,7 +33,8 @@ class Passenger extends Component {
       error: null,
       destination: '',
       locationPredictions: [],
-      pointCoords: []
+      pointCoords: [],
+      lookingForDriver: false
     }
     // this.onChangeDestinationDebounced = _.debounce(
     //   this.onChangeDestination,
@@ -173,6 +175,9 @@ class Passenger extends Component {
             />
   }
   async requestDriver(){
+    this.setState({
+      lookingForDriver: true
+    })
     const socket = socketIO.connect('http://192.168.0.3:3000')
     socket.on('connect', () => {
       console.log('Client connected ;)');
@@ -181,12 +186,19 @@ class Passenger extends Component {
       
     })
   }
+  showActivityIndicator(){
+    return <ActivityIndicator
+            animating={this.state.lookingForDriver}
+            size='large'
+          />
+  }
   showFindDriverButton(){
     return <TouchableOpacity 
               style={styles.findButton}
               onPress={() => this.requestDriver()}
             >
               <Text style={styles.findButtonText}>Find Driver</Text>
+              {this.state.lookingForDriver && this.showActivityIndicator()}
           </TouchableOpacity>
   }
   render(){
