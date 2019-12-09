@@ -10,8 +10,7 @@ import {
   PermissionsAndroid,
   TouchableHighlight,
   FlatList,
-  TouchableOpacity,
-  ActivityIndicator
+  Image
 } from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker, Polyline} from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
@@ -22,6 +21,7 @@ import socketIO from "socket.io-client";
 
 import apiPlaces from '../api-places'
 import apiKey from '../google-api-key'
+import BottomButtom from '../components/BottonButton';
 
 
 class Passenger extends Component {
@@ -34,7 +34,9 @@ class Passenger extends Component {
       destination: '',
       locationPredictions: [],
       pointCoords: [],
-      lookingForDriver: false
+      lookingForDriver: false,
+      buttonText: "Find Driver",
+      driverIsOnTheWay: false
     }
     // this.onChangeDestinationDebounced = _.debounce(
     //   this.onChangeDestination,
@@ -174,6 +176,13 @@ class Passenger extends Component {
             icon={this.iconFlag}
             />
   }
+  getDriverMarker(){
+    return <Marker 
+              coordinate={this.state.driverLocation}
+            >
+              <Image source={require('../../images/taxi-icon.png')} style={styles.taxiIcon}></Image>
+            </Marker>
+  }
   async requestDriver(){
     this.setState({
       lookingForDriver: true
@@ -185,21 +194,28 @@ class Passenger extends Component {
       socket.emit('taxiRequest', this.state.routeResponse)
       
     })
-  }
-  showActivityIndicator(){
-    return <ActivityIndicator
-            animating={this.state.lookingForDriver}
-            size='large'
-          />
+
+    socket.on('driverLocation', driverLocation => {
+      const pointCoords = [...this.state.pointCoords, driverLocation];
+      this.map.fitToCoordinates(pointCoords, {
+        edgePadding: { top: 20, bottom: 20, left: 20, right: 20 }
+      });
+      this.setState({
+        lookingForDriver: false,
+        driverIsOnTheWay: true,
+        driverLocation
+      })
+
+    })
   }
   showFindDriverButton(){
-    return <TouchableOpacity 
-              style={styles.findButton}
+    return <BottomButtom
+              showIndicator={this.state.lookingForDriver}
+              buttonText={this.state.buttonText}
+              styleTouchable={styles.findButton}
+              styleFindButtonText={styles.findButtonText}
               onPress={() => this.requestDriver()}
-            >
-              <Text style={styles.findButtonText}>Find Driver</Text>
-              {this.state.lookingForDriver && this.showActivityIndicator()}
-          </TouchableOpacity>
+          />
   }
   render(){
     return (
@@ -216,7 +232,7 @@ class Passenger extends Component {
           }}
           //provider={PROVIDER_GOOGLE} // remove if not using Google Maps
           style={styles.map}
-          region={{
+          region={{  
             latitude: this.state.latitude,
             longitude: this.state.longitude,
             latitudeDelta: 0.0015,
@@ -231,6 +247,8 @@ class Passenger extends Component {
             strokeColor="red"
           />
           {this.state.pointCoords.length > 1 && this.getMarker()}
+          {this.state.driverIsOnTheWay && this.getDriverMarker()}
+
         </MapView>
         <TextInput
           onChangeText={this.handleChangeText}
@@ -290,6 +308,10 @@ const styles = StyleSheet.create({
   },
   findButtonText: {
     color: 'white'
+  },
+  taxiIcon: {
+    width: 40,
+    height: 40
   }
  });
 

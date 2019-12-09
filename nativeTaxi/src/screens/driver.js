@@ -2,14 +2,9 @@ import React, { Component } from 'react';
 import {
   SafeAreaView,
   StyleSheet,
-  Text,
-  TextInput,
   StatusBar,
   Keyboard,
-  View,
-  PermissionsAndroid,
-  TouchableOpacity,
-  ActivityIndicator
+  PermissionsAndroid
 } from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker, Polyline} from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
@@ -21,6 +16,7 @@ import socketIO from "socket.io-client";
 
 import apiPlaces from '../api-places'
 import apiKey from '../google-api-key'
+import BottomButtom from '../components/BottonButton';
 
 
 class Driver extends Component {
@@ -36,6 +32,9 @@ class Driver extends Component {
       routeResponse: [],
       buttonText: "Find Passenger"
     }
+    this.requestPassenger = this.requestPassenger.bind(this)
+    this.acceptPassengerRrequest = this.acceptPassengerRrequest.bind(this)
+    this.bottonButtonFunction = this.requestPassenger
   }
 
 
@@ -143,31 +142,36 @@ class Driver extends Component {
     this.setState({
       lookingForPassengers: true
     })
-    const socket = socketIO.connect('http://192.168.0.3:3000')
+    this.socket = socketIO.connect('http://192.168.0.3:3000')
 
-    socket.on('connect', ()=>{
-      socket.emit('lookingForPassengers')
+    this.socket.on('connect', ()=>{
+      this.socket.emit('lookingForPassengers')
     })
 
-    socket.on('taxiRequest', routeResponse => {
+    this.socket.on('taxiRequest', routeResponse => {
       console.log(routeResponse);
       this.getRouteDirections(routeResponse.geocoded_waypoints[0].place_id);
       this.setState({
         lookingForPassengers: false,
         passengerFound: true,
         routeResponse,
-        buttonText: "Passenger Found"
+        buttonText: "Passenger Found, Accept Ride?"
       });
+      this.bottonButtonFunction = this.acceptPassengerRrequest
       
     })
   }
-  showActivityIndicator(){
-    return <ActivityIndicator
-              animating={this.state.lookingForPassengers}
-              size='large'
-            />
+  acceptPassengerRrequest(){
+    console.log("Accepted passenger!!!");
+    this.socket.emit("driverLocation", 
+      {
+        latitude: this.state.latitude, 
+        longitude: this.state.longitude
+      })
+    
   }
   render(){
+    
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar 
@@ -198,15 +202,14 @@ class Driver extends Component {
           />
           {this.state.pointCoords.length > 1 && this.getMarker()}
         </MapView>
-        <TouchableOpacity 
-              style={styles.findButton}
-              onPress={() => this.requestPassenger()}
-            >
-              <View>
-        <Text style={styles.findButtonText}>{this.state.buttonText}</Text>
-                {this.state.lookingForPassengers && this.showActivityIndicator()}
-              </View>
-          </TouchableOpacity>
+        <BottomButtom
+          showIndicator={this.state.lookingForPassengers}
+          buttonText={this.state.buttonText}
+          styleTouchable={styles.findButton}
+          styleFindButtonText={styles.findButtonText}
+          onPress={() => this.bottonButtonFunction()}
+        />
+        
       </SafeAreaView>
     );
   }

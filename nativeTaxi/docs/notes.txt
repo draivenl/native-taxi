@@ -40,7 +40,12 @@ The new API key is listed on the Credentials page under API keys.
 
 
     yarn add react-native-geolocation-service
+        (https://www.npmjs.com/package/react-native-geolocation-service)
+        In RN 0.60 or higher Update your Podfile
 
+            pod 'react-native-geolocation', path: '../node_modules/@react-native-community/geolocation'
+
+            Then run pod install from ios directory
 
 
     https://cloud.google.com/maps-platform/#get-started
