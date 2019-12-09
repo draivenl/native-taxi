@@ -4,7 +4,9 @@ import {
   StyleSheet,
   StatusBar,
   Keyboard,
-  PermissionsAndroid
+  PermissionsAndroid,
+  Linking,
+  Platform
 } from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker, Polyline} from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
@@ -169,6 +171,22 @@ class Driver extends Component {
         longitude: this.state.longitude
       })
     
+    const passengerLocation = this.state.pointCoords[
+      this.state.pointCoords.length - 1
+    ]
+
+    if (Platform.OS === 'ios') {
+      Linking.openURL(
+        // `http://maps.apple.com/?daddr=${passengerLocation.latitude},${passengerLocation.longitude}`
+        `maps:0,0?q=Passenger@${passengerLocation.latitude},${passengerLocation.longitude}`
+        )
+    } else {
+      Linking.openURL(
+        // `https://www.google.com/dir/?api=1&destination=${passengerLocation.latitude},${passengerLocation.longitude}`
+        `geo:0,0?q=${passengerLocation.latitude},${passengerLocation.longitude}(Passenger)`
+        )
+    }
+
   }
   render(){
     
