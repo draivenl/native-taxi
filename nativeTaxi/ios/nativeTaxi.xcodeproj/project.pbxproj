@@ -17,6 +17,7 @@
 		2D02E4BD1E0B4A84006451C7 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		2D02E4BF1E0B4AB3006451C7 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB71A68108700A75B9A /* main.m */; };
 		2DCD954D1E0B4F2C00145EB5 /* nativeTaxiTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* nativeTaxiTests.m */; };
+		3F22292223A6DC5C0032F643 /* libRCTBackgroundGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F22292123A6DC130032F643 /* libRCTBackgroundGeolocation.a */; };
 		3F74C1BD23941BE600EABA9C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3F74C1BC23941BE600EABA9C /* MapKit.framework */; };
 		7FA590E6A459F5E847F30261 /* libPods-nativeTaxi-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6472557B024C1619FD0DB800 /* libPods-nativeTaxi-tvOSTests.a */; };
 		8B75F46B73B274145EC4665E /* libPods-nativeTaxi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 23C919DE76F12704A70859AF /* libPods-nativeTaxi.a */; };
@@ -38,6 +39,13 @@
 			remoteGlobalIDString = 2D02E47A1E0B4A5D006451C7;
 			remoteInfo = "nativeTaxi-tvOS";
 		};
+		3F22292023A6DC130032F643 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3F22291B23A6DC120032F643 /* RCTBackgroundGeolocation.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 418F75461D02DC3D0045FEA0;
+			remoteInfo = RCTBackgroundGeolocation;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -56,6 +64,7 @@
 		23C919DE76F12704A70859AF /* libPods-nativeTaxi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-nativeTaxi.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E47B1E0B4A5D006451C7 /* nativeTaxi-tvOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "nativeTaxi-tvOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2D02E4901E0B4A5D006451C7 /* nativeTaxi-tvOSTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "nativeTaxi-tvOSTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		3F22291B23A6DC120032F643 /* RCTBackgroundGeolocation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTBackgroundGeolocation.xcodeproj; path = "../node_modules/@mauron85/react-native-background-geolocation/ios/RCTBackgroundGeolocation.xcodeproj"; sourceTree = "<group>"; };
 		3F74C1BC23941BE600EABA9C /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		3FBAC33DD9BC000DBFB95624 /* Pods-nativeTaxiTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-nativeTaxiTests.release.xcconfig"; path = "Target Support Files/Pods-nativeTaxiTests/Pods-nativeTaxiTests.release.xcconfig"; sourceTree = "<group>"; };
 		6472557B024C1619FD0DB800 /* libPods-nativeTaxi-tvOSTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-nativeTaxi-tvOSTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -84,6 +93,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3F22292223A6DC5C0032F643 /* libRCTBackgroundGeolocation.a in Frameworks */,
 				3F74C1BD23941BE600EABA9C /* MapKit.framework in Frameworks */,
 				8B75F46B73B274145EC4665E /* libPods-nativeTaxi.a in Frameworks */,
 			);
@@ -153,6 +163,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		3F22291C23A6DC120032F643 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3F22292123A6DC130032F643 /* libRCTBackgroundGeolocation.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		68E16333F559027EA382AF2B /* Pods */ = {
 			isa = PBXGroup;
 			children = (
@@ -171,6 +189,7 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
+				3F22291B23A6DC120032F643 /* RCTBackgroundGeolocation.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -327,6 +346,12 @@
 			mainGroup = 83CBB9F61A601CBA00E9B192;
 			productRefGroup = 83CBBA001A601CBA00E9B192 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 3F22291C23A6DC120032F643 /* Products */;
+					ProjectRef = 3F22291B23A6DC120032F643 /* RCTBackgroundGeolocation.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* nativeTaxi */,
@@ -336,6 +361,16 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		3F22292123A6DC130032F643 /* libRCTBackgroundGeolocation.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRCTBackgroundGeolocation.a;
+			remoteRef = 3F22292023A6DC130032F643 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		00E356EC1AD99517003FC87E /* Resources */ = {

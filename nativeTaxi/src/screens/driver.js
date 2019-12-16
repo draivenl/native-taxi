@@ -6,7 +6,8 @@ import {
   Keyboard,
   PermissionsAndroid,
   Linking,
-  Platform
+  Platform,
+  Alert
 } from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker, Polyline} from 'react-native-maps';
 import Geolocation from 'react-native-geolocation-service';
@@ -14,6 +15,7 @@ import _ from 'lodash'
 import PolyLine from "@mapbox/polyline";
 import Icon from "react-native-vector-icons/FontAwesome";
 import socketIO from "socket.io-client";
+import BackgroundGeolocation from '@mauron85/react-native-background-geolocation';
 
 
 import apiPlaces from '../api-places'
@@ -86,7 +88,32 @@ class Driver extends Component {
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 2000 }
     );
     
-    //navigator.geolocation.getCurrentPosition()
+    BackgroundGeolocation.configure({
+      desiredAccuracy: BackgroundGeolocation.HIGH_ACCURACY,
+      stationaryRadius: 50,
+      distanceFilter: 50,
+      debug: false,
+      startOnBoot: false,
+      stopOnTerminate: true,
+      locationProvider: BackgroundGeolocation.ACTIVITY_PROVIDER,
+      interval: 10000,
+      fastestInterval: 5000,
+      activitiesInterval: 10000,
+      stopOnStillActivity: false,
+      
+    });
+    BackgroundGeolocation.on('authorization', (status) => {
+      console.log('[INFO] BackgroundGeolocation authorization status: ' + status);
+      if (status !== BackgroundGeolocation.AUTHORIZED) {
+        // we need to set delay or otherwise alert may not be shown
+        setTimeout(() =>
+          Alert.alert('App requires location tracking permission', 'Would you like to open app settings?', [
+            { text: 'Yes', onPress: () => BackgroundGeolocation.showAppSettings() },
+            { text: 'No', onPress: () => console.log('No Pressed'), style: 'cancel' }
+          ]), 1000);
+      }
+    });
+    
   }
 
 
@@ -144,7 +171,7 @@ class Driver extends Component {
     this.setState({
       lookingForPassengers: true
     })
-    this.socket = socketIO.connect('http://192.168.0.3:3000')
+    this.socket = socketIO.connect('http://192.168.0.5:3000')
 
     this.socket.on('connect', ()=>{
       this.socket.emit('lookingForPassengers')
@@ -164,16 +191,29 @@ class Driver extends Component {
     })
   }
   acceptPassengerRrequest(){
-    console.log("Accepted passenger!!!");
-    this.socket.emit("driverLocation", 
-      {
-        latitude: this.state.latitude, 
-        longitude: this.state.longitude
-      })
-    
     const passengerLocation = this.state.pointCoords[
       this.state.pointCoords.length - 1
     ]
+
+    BackgroundGeolocation.on('location', location => {
+      console.log("On Location");
+      
+      // Send driver location to passenger
+      this.socket.emit("driverLocation", 
+      {
+        latitude: location.latitude, 
+        longitude: location.longitude
+      })
+    });
+
+    BackgroundGeolocation.checkStatus(status => {
+      // you don't need to check status before start (this is just the example)
+      if (!status.isRunning) {
+        console.log("Start!!!");
+        
+        BackgroundGeolocation.start(); //triggers start on start event
+      }
+    });
 
     if (Platform.OS === 'ios') {
       Linking.openURL(

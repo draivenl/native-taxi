@@ -61,3 +61,8 @@ Routes
 
 Install Socket IO
     yarn add socket.io-client
+
+Install background-geolocation
+    yarn add @mauron85/react-native-background-geolocation
+
+    

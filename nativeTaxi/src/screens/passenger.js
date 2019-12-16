@@ -119,7 +119,7 @@ class Passenger extends Component {
       });
       Keyboard.dismiss();
       this.map.fitToCoordinates(pointCoords, {
-        edgePadding: { top: 20, bottom: 20, left: 20, right: 20 }
+        edgePadding: { top: 120, bottom: 20, left: 20, right: 20 }
       });
     } catch (error) {
       console.error(error);
@@ -187,7 +187,7 @@ class Passenger extends Component {
     this.setState({
       lookingForDriver: true
     })
-    const socket = socketIO.connect('http://192.168.0.3:3000')
+    const socket = socketIO.connect('http://192.168.0.5:3000')
     socket.on('connect', () => {
       console.log('Client connected ;)');
 
@@ -198,7 +198,7 @@ class Passenger extends Component {
     socket.on('driverLocation', driverLocation => {
       const pointCoords = [...this.state.pointCoords, driverLocation];
       this.map.fitToCoordinates(pointCoords, {
-        edgePadding: { top: 20, bottom: 20, left: 20, right: 20 }
+        edgePadding: { top: 120, bottom: 20, left: 20, right: 20 }
       });
       this.setState({
         lookingForDriver: false,
